@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/sale.dart';
 import '../providers/sale_provider.dart';
-// Add missing imports at the top of sale_form.dart
 import '../providers/product_provider.dart';
 import '../providers/customer_provider.dart';
 
@@ -26,31 +25,65 @@ class _SaleFormState extends State<SaleForm> {
       children: [
         DropdownButton<String>(
           hint: Text('Select Product'),
-          value: selectedProductId,
+          value: products.any((p) => p.id.toString() == selectedProductId)
+              ? selectedProductId
+              : null,
           onChanged: (value) => setState(() => selectedProductId = value),
-          items: products.map((p) => DropdownMenuItem(value: p.id.toString(), child: Text(p.name))).toList(),
+          items: products
+              .map((p) => DropdownMenuItem<String>(
+                    value: p.id.toString(),
+                    child: Text(p.name),
+                  ))
+              .toList(),
         ),
         DropdownButton<String>(
           hint: Text('Select Customer'),
-          value: selectedCustomerId,
+          value: customers.any((c) => c.id.toString() == selectedCustomerId)
+              ? selectedCustomerId
+              : null,
           onChanged: (value) => setState(() => selectedCustomerId = value),
-          items: customers.map((c) => DropdownMenuItem(value: c.id.toString(), child: Text(c.name))).toList(),
+          items: customers
+              .map((c) => DropdownMenuItem<String>(
+                    value: c.id.toString(),
+                    child: Text(c.name),
+                  ))
+              .toList(),
         ),
         DropdownButton<String>(
           value: paymentType,
           onChanged: (value) => setState(() => paymentType = value!),
-          items: ['Cash', 'Credit'].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+          items: ['Cash', 'Credit']
+              .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+              .toList(),
         ),
         ElevatedButton(
-          onPressed: () {
-            context.read<SaleProvider>().createSale(
-              productId: int.parse(selectedProductId!),
-              customerId: int.parse(selectedCustomerId!),
-              paymentType: paymentType,
-            );
-          },
-          child: Text('Record Sale'),
-        )
+  onPressed: () async {
+    if (selectedProductId == null || selectedCustomerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select both a product and a customer.')),
+      );
+      return;
+    }
+
+    try {
+      await context.read<SaleProvider>().createSale(
+        productId: int.parse(selectedProductId!),
+        customerId: int.parse(selectedCustomerId!),
+        paymentType: paymentType,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sale recorded successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to record sale: $e')),
+      );
+    }
+  },
+  child: Text('Record Sale'),
+)
+
       ],
     );
   }

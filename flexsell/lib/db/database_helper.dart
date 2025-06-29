@@ -30,7 +30,7 @@ class DatabaseHelper {
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE products (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         cashPrice REAL NOT NULL,
         creditPrice REAL NOT NULL
@@ -39,7 +39,7 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE customers (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         phone TEXT,
         prepaidBalance REAL NOT NULL,
@@ -49,9 +49,9 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE sales (
-        id TEXT PRIMARY KEY,
-        productId TEXT NOT NULL,
-        customerId TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        productId INTEGER NOT NULL,
+        customerId INTEGER NOT NULL,
         amountPaid REAL NOT NULL,
         paymentType TEXT NOT NULL,
         date TEXT NOT NULL
