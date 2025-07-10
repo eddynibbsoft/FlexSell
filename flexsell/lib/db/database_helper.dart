@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+
 import '../models/product.dart';
 import '../models/customer.dart';
 import '../models/sale.dart';
@@ -43,7 +44,7 @@ class DatabaseHelper {
         name TEXT NOT NULL,
         phone TEXT,
         prepaidBalance REAL NOT NULL,
-        creditOwed REAL NOT NULL
+        
       )
     ''');
 
@@ -59,14 +60,16 @@ class DatabaseHelper {
     ''');
   }
 
-  Future close() async {
+  Future<void> close() async {
     final db = await instance.database;
-    db.close();
+    await db.close();
   }
 }
 
+// ─────────────────────────────────────────────
+// ProductDB Extension
+// ─────────────────────────────────────────────
 
-// db/database_helper.dart additions
 extension ProductDB on DatabaseHelper {
   Future<void> insertProduct(Product product) async {
     final db = await database;
@@ -79,12 +82,43 @@ extension ProductDB on DatabaseHelper {
     return result.map((e) => Product.fromMap(e)).toList();
   }
 
-  Future<Product> getProductById(int id) async {
+  Future<Product?> getProductById(int id) async {
     final db = await database;
-    final result = await db.query('products', where: 'id = ?', whereArgs: [id]);
-    return Product.fromMap(result.first);
+    final result = await db.query(
+      'products',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (result.isNotEmpty) {
+      return Product.fromMap(result.first);
+    } else {
+      return null;
+    }
+  }
+
+  Future<int> updateProduct(Product product) async {
+    final db = await database;
+    return await db.update(
+      'products',
+      product.toMap(),
+      where: 'id = ?',
+      whereArgs: [product.id],
+    );
+  }
+
+  Future<int> deleteProduct(int id) async {
+    final db = await database;
+    return await db.delete(
+      'products',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
+
+// ─────────────────────────────────────────────
+// CustomerDB Extension
+// ─────────────────────────────────────────────
 
 extension CustomerDB on DatabaseHelper {
   Future<void> insertCustomer(Customer customer) async {
@@ -98,17 +132,43 @@ extension CustomerDB on DatabaseHelper {
     return result.map((e) => Customer.fromMap(e)).toList();
   }
 
-  Future<Customer> getCustomerById(int id) async {
+  Future<Customer?> getCustomerById(int id) async {
     final db = await database;
-    final result = await db.query('customers', where: 'id = ?', whereArgs: [id]);
-    return Customer.fromMap(result.first);
+    final result = await db.query(
+      'customers',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (result.isNotEmpty) {
+      return Customer.fromMap(result.first);
+    } else {
+      return null;
+    }
   }
 
-  Future<void> updateCustomer(Customer customer) async {
+  Future<int> updateCustomer(Customer customer) async {
     final db = await database;
-    await db.update('customers', customer.toMap(), where: 'id = ?', whereArgs: [customer.id]);
+    return await db.update(
+      'customers',
+      customer.toMap(),
+      where: 'id = ?',
+      whereArgs: [customer.id],
+    );
+  }
+
+  Future<int> deleteCustomer(int id) async {
+    final db = await database;
+    return await db.delete(
+      'customers',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
+
+// ─────────────────────────────────────────────
+// SaleDB Extension
+// ─────────────────────────────────────────────
 
 extension SaleDB on DatabaseHelper {
   Future<void> insertSale(Sale sale) async {
@@ -121,5 +181,43 @@ extension SaleDB on DatabaseHelper {
     final result = await db.query('sales');
     return result.map((e) => Sale.fromMap(e)).toList();
   }
-}
 
+  Future<Sale?> getSaleById(int id) async {
+    final db = await database;
+    final result = await db.query(
+      'sales',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (result.isNotEmpty) {
+      return Sale.fromMap(result.first);
+    } else {
+      return null;
+    }
+  }
+
+  Future<int> deleteSale(int id) async {
+    final db = await database;
+    return await db.delete(
+      'sales',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getSalesWithDetails() async {
+  final db = await database;
+  final result = await db.rawQuery('''
+    SELECT 
+      s.*, 
+      c.name as customerName,
+      p.name as productName
+    FROM sales s
+    LEFT JOIN customers c ON s.customerId = c.id
+    LEFT JOIN products p ON s.productId = p.id
+    ORDER BY s.date DESC
+  ''');
+  return result;
+  }
+
+}

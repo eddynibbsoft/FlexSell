@@ -3,14 +3,13 @@ class Customer {
   String name;
   String phone;
   double prepaidBalance;
-  double creditOwed;
+
 
   Customer({
     this.id,
     required this.name,
     required this.phone,
-    this.prepaidBalance = 0.0,
-    this.creditOwed = 0.0,
+    this.prepaidBalance = 0.0
   });
 
   Map<String, dynamic> toMap() {
@@ -19,7 +18,7 @@ class Customer {
       'name': name,
       'phone': phone,
       'prepaidBalance': prepaidBalance,
-      'creditOwed': creditOwed,
+
     };
   }
 
@@ -29,7 +28,6 @@ class Customer {
       name: map['name'],
       phone: map['phone'],
       prepaidBalance: map['prepaidBalance'] ?? 0.0,
-      creditOwed: map['creditOwed'] ?? 0.0,
     );
   }
 }

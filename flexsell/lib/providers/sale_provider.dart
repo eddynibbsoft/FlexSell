@@ -1,13 +1,8 @@
-
-// providers/sale_provider.dart
-import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart';  // For ChangeNotifier
-import 'package:flutter/widgets.dart';     // For Widget, BuildContext, StatelessWidget, etc.
-import '../db/database_helper.dart';       // Adjust relative path for your DatabaseHelper
-import '../models/sale.dart';            // Adjust relative path for Product model
+import 'package:flutter/foundation.dart';
+import '../db/database_helper.dart';
+import '../models/sale.dart';
 import '../models/customer.dart';
 import '../models/product.dart';
-
 
 class SaleProvider extends ChangeNotifier {
   final DatabaseHelper db;
@@ -17,6 +12,8 @@ class SaleProvider extends ChangeNotifier {
     loadSales();
   }
 
+  List<Sale> get sales => List.unmodifiable(_sales);
+
   Future<void> loadSales() async {
     _sales = await db.getAllSales();
     notifyListeners();
@@ -25,41 +22,60 @@ class SaleProvider extends ChangeNotifier {
   Future<void> createSale({
     required int productId,
     required int customerId,
-    required String paymentType,
   }) async {
     final product = await db.getProductById(productId);
     final customer = await db.getCustomerById(customerId);
 
-    final amount = paymentType == 'Cash' ? product.cashPrice : product.creditPrice;
+    if (product == null || customer == null) {
+      return;
+    }
+
+    // Wallet logic
+    double amountToDeduct;
+    if (customer.prepaidBalance >= product.cashPrice) {
+      amountToDeduct = product.cashPrice;
+    } else {
+      // Not enough funds, use credit price
+      amountToDeduct = product.creditPrice;
+    }
+
+    // Update balance
+    customer.prepaidBalance -= amountToDeduct;
+
     final sale = Sale(
       productId: productId,
       customerId: customerId,
-      amountPaid: amount,
-      paymentType: paymentType,
+      amountPaid: amountToDeduct,
+      paymentType: 'Wallet', // Keep for record purposes
       date: DateTime.now(),
     );
-    await db.insertSale(sale);
 
-    if (paymentType == 'Credit') {
-      customer.creditOwed += amount;
-    } else if (paymentType == 'Cash' && customer.prepaidBalance >= amount) {
-      customer.prepaidBalance -= amount;
-    }
+    await db.insertSale(sale);
     await db.updateCustomer(customer);
     await loadSales();
   }
 
-  String getCustomerStatement(int customerId) {
-    final relevantSales = _sales.where((s) => s.customerId == customerId).toList();
-    final totalCredit = relevantSales
-        .where((s) => s.paymentType == 'Credit')
-        .fold(0.0, (sum, s) => sum + s.amountPaid);
-    final totalCash = relevantSales
-        .where((s) => s.paymentType == 'Cash')
-        .fold(0.0, (sum, s) => sum + s.amountPaid);
+  Future<void> addFundsToWallet({
+    required int customerId,
+    required double amount,
+  }) async {
+    final customer = await db.getCustomerById(customerId);
+    if (customer == null) return;
 
-    return 'Cash Paid: \$${totalCash.toStringAsFixed(2)}\n'
-           'Credit Owed: \$${totalCredit.toStringAsFixed(2)}';
+    customer.prepaidBalance += amount;
+    await db.updateCustomer(customer);
+    await loadSales();
   }
-}
 
+  Future<List<Map<String, dynamic>>> getSalesWithDetails() async {
+  return await db.getSalesWithDetails(); // uses the raw query method
+  }
+
+  String getCustomerStatement(int customerId) {
+    final customerSales = _sales.where((s) => s.customerId == customerId);
+    final totalSpent = customerSales.fold(0.0, (sum, s) => sum + s.amountPaid);
+
+    return 'Total Spent: \$${totalSpent.toStringAsFixed(2)}';
+  }
+  
+}

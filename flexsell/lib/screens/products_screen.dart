@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/product_provider.dart';
-import '../providers/customer_provider.dart';
-import '../providers/sale_provider.dart';
-
 import '../widgets/product_form.dart';
-import '../models/customer.dart';
-import '../models/sale.dart';
-
+import '../models/product.dart';
 
 class ProductsScreen extends StatelessWidget {
   @override
@@ -17,25 +13,55 @@ class ProductsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text('Products')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (_, index) {
-                final product = products[index];
-                return ListTile(
-                  title: Text(product.name),
-                  subtitle: Text('Cash: \$${product.cashPrice}, Credit: \$${product.creditPrice}'),
-                );
-              },
+      body: ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (_, index) {
+          final product = products[index];
+          return ListTile(
+            title: Text(product.name),
+            subtitle: Text(
+              'Cash: \$${product.cashPrice.toStringAsFixed(2)}, '
+              'Credit: \$${product.creditPrice.toStringAsFixed(2)}',
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ProductForm(),
-          ),
-        ],
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text('Edit Product'),
+                        content: ProductForm(product: product),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    if (product.id != null) {
+                      context.read<ProductProvider>().deleteProduct(product.id!);
+                    }
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text('Add Product'),
+              content: ProductForm(),
+            ),
+          );
+        },
       ),
     );
   }

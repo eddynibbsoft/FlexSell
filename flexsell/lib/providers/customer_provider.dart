@@ -1,14 +1,7 @@
-
 // providers/customer_provider.dart
-import 'package:provider/provider.dart';
-
-import 'package:flutter/foundation.dart';  // For ChangeNotifier
-import 'package:flutter/widgets.dart';     // For Widget, BuildContext, StatelessWidget, etc.
-
-import '../db/database_helper.dart';       // Adjust relative path for your DatabaseHelper
-import '../models/customer.dart';            // Adjust relative path for Product model
-import '../models/product.dart';
-import '../models/sale.dart';
+import 'package:flutter/foundation.dart';
+import '../db/database_helper.dart';
+import '../models/customer.dart';
 
 class CustomerProvider extends ChangeNotifier {
   final DatabaseHelper db;
@@ -18,21 +11,38 @@ class CustomerProvider extends ChangeNotifier {
     loadCustomers();
   }
 
-  List<Customer> get customers => _customers;
+  List<Customer> get customers => List.unmodifiable(_customers); // Safer access
 
+  // READ
   Future<void> loadCustomers() async {
     _customers = await db.getAllCustomers();
     notifyListeners();
   }
 
+  // CREATE
   Future<void> addCustomer(Customer customer) async {
     await db.insertCustomer(customer);
     await loadCustomers();
   }
 
+  // UPDATE
   Future<void> updateCustomer(Customer customer) async {
-  await db.updateCustomer(customer);
-  await loadCustomers();
-}
+    await db.updateCustomer(customer);
+    await loadCustomers();
+  }
 
+  // DELETE
+  Future<void> deleteCustomer(int id) async {
+    await db.deleteCustomer(id);
+    await loadCustomers();
+  }
+
+  // Optional: FIND BY ID
+  Customer? findById(int id) {
+    try {
+      return _customers.firstWhere((c) => c.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/customer.dart';
 import '../providers/customer_provider.dart';
+import '../providers/sale_provider.dart';
 
 class PrepaymentScreen extends StatefulWidget {
   @override
@@ -11,19 +11,23 @@ class PrepaymentScreen extends StatefulWidget {
 class _PrepaymentScreenState extends State<PrepaymentScreen> {
   final TextEditingController amountController = TextEditingController();
   int? selectedCustomerId;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     final customers = context.watch<CustomerProvider>().customers;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Add Prepayment')),
+      appBar: AppBar(title: Text('Customer Wallet')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            DropdownButton<int>(
-              hint: Text('Select Customer'),
+            DropdownButtonFormField<int>(
+              decoration: InputDecoration(
+                labelText: 'Select Customer',
+                border: OutlineInputBorder(),
+              ),
               value: selectedCustomerId,
               onChanged: (int? id) {
                 setState(() {
@@ -40,48 +44,84 @@ class _PrepaymentScreenState extends State<PrepaymentScreen> {
             SizedBox(height: 16),
             TextField(
               controller: amountController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: 'Amount',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                if (selectedCustomerId != null && amountController.text.isNotEmpty) {
-                  final amount = double.tryParse(amountController.text);
-                  if (amount == null || amount <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Enter a valid amount')),
-                    );
-                    return;
-                  }
-
-                  final customer = customers.firstWhere((c) => c.id == selectedCustomerId);
-                  customer.prepaidBalance += amount;
-
-                  await context.read<CustomerProvider>().updateCustomer(customer);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Prepayment recorded for ${customer.name}')),
-                  );
-
-                  setState(() {
-                    amountController.clear();
-                    selectedCustomerId = null;
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please select a customer and enter amount')),
-                  );
-                }
-              },
-              child: Text('Add Balance'),
+            SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : _handleAddBalance,
+                child: isLoading
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text('Add Funds'),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _handleAddBalance() async {
+    if (selectedCustomerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a customer')),
+      );
+      return;
+    }
+
+    final amount = double.tryParse(amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Enter a valid amount')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await context.read<SaleProvider>().addFundsToWallet(
+            customerId: selectedCustomerId!,
+            amount: amount,
+          );
+
+      await context.read<CustomerProvider>().loadCustomers();
+
+      final customer = context
+          .read<CustomerProvider>()
+          .customers
+          .firstWhere((c) => c.id == selectedCustomerId);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Prepayment recorded for ${customer.name}')),
+      );
+
+      setState(() {
+        amountController.clear();
+        selectedCustomerId = null;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add balance: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

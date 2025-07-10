@@ -80,7 +80,7 @@ class SaleScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'New Sale Transaction',
+                      'FlexSell',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -141,7 +141,7 @@ class SaleScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 12),
                           Text(
-                            'Sale Details',
+                            'Point Of Sale',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,

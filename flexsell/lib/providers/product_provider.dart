@@ -1,12 +1,6 @@
-
-// providers/product_provider.dart
-import 'package:provider/provider.dart';
-
-import 'package:flutter/foundation.dart';  // For ChangeNotifier
-import 'package:flutter/widgets.dart';     // For Widget, BuildContext, StatelessWidget, etc.
-
-import '../db/database_helper.dart';       // Adjust relative path for your DatabaseHelper
-import '../models/product.dart';            // Adjust relative path for Product model
+import 'package:flutter/foundation.dart';
+import '../db/database_helper.dart';
+import '../models/product.dart';
 
 class ProductProvider extends ChangeNotifier {
   final DatabaseHelper db;
@@ -16,15 +10,38 @@ class ProductProvider extends ChangeNotifier {
     loadProducts();
   }
 
-  List<Product> get products => _products;
+  List<Product> get products => List.unmodifiable(_products); // safer getter
 
+  // READ: Load all products from database
   Future<void> loadProducts() async {
     _products = await db.getAllProducts();
     notifyListeners();
   }
 
+  // CREATE: Insert new product and refresh list
   Future<void> addProduct(Product product) async {
     await db.insertProduct(product);
     await loadProducts();
+  }
+
+  // UPDATE: Modify existing product and refresh list
+  Future<void> updateProduct(Product product) async {
+    await db.updateProduct(product);
+    await loadProducts();
+  }
+
+  // DELETE: Remove product by ID and refresh list
+  Future<void> deleteProduct(int id) async {
+    await db.deleteProduct(id);
+    await loadProducts();
+  }
+
+  // Optional: Find product by ID
+  Product? findById(int id) {
+    try {
+      return _products.firstWhere((product) => product.id == id);
+    } catch (e) {
+      return null;
+    }
   }
 }

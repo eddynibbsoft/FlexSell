@@ -1,8 +1,8 @@
 class Product {
-  int? id;
-  String name;
-  double cashPrice;
-  double creditPrice;
+  final int? id;
+  final String name;
+  final double cashPrice;
+  final double creditPrice;
 
   Product({
     this.id,
@@ -13,7 +13,7 @@ class Product {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      if (id != null) 'id': id, // avoid inserting null for auto-incremented id
       'name': name,
       'cashPrice': cashPrice,
       'creditPrice': creditPrice,
@@ -22,10 +22,10 @@ class Product {
 
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
-      id: map['id'],
-      name: map['name'],
-      cashPrice: map['cashPrice'],
-      creditPrice: map['creditPrice'],
+      id: map['id'] as int?,
+      name: map['name'] as String,
+      cashPrice: (map['cashPrice'] as num).toDouble(),
+      creditPrice: (map['creditPrice'] as num).toDouble(),
     );
   }
 }
