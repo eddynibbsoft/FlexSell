@@ -12,13 +12,13 @@ Future<void> printCustomerReceipt(Customer customer) async {
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text('FlexSell Receipt',
+            pw.Text('FlexSell Wallet',
                 style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 12),
             pw.Text('Name: ${customer.name}'),
             pw.Text('Phone: ${customer.phone}'),
             pw.SizedBox(height: 12),
-            pw.Text('Prepaid Balance: \$${customer.prepaidBalance.toStringAsFixed(2)}'),
+            pw.Text('Balance: \$${customer.prepaidBalance.toStringAsFixed(2)}'),
  
             pw.Divider(),
             pw.Text('Thank you for supporting us!'),

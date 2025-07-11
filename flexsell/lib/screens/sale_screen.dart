@@ -9,10 +9,7 @@ class SaleScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Record Sale',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         backgroundColor: Colors.purple[600],
         foregroundColor: Colors.white,
@@ -29,186 +26,193 @@ class SaleScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Section with gradient
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.purple[600]!, Colors.purple[400]!],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              child: Container(
-                padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            children: [
+              // Header Section
+              Container(
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
+                  gradient: LinearGradient(
+                    colors: [Colors.purple[600]!, Colors.purple[400]!],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
-                child: Column(
-                  children: [
-                    SizedBox(height: 24),
-                    // Sale Icon and Title
-                    Container(
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.purple[100]!, Colors.purple[50]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.purple.withOpacity(0.2),
-                            blurRadius: 15,
-                            offset: Offset(0, 5),
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 24),
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.purple[100]!, Colors.purple[50]!],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        ],
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.purple.withOpacity(0.2),
+                              blurRadius: 15,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.point_of_sale,
+                          size: 40,
+                          color: Colors.purple[600],
+                        ),
                       ),
-                      child: Icon(
-                        Icons.point_of_sale,
-                        size: 40,
-                        color: Colors.purple[600],
+                      SizedBox(height: 16),
+                      Text(
+                        'FlexSell',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Fill in the details below to record a new sale',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Form Section
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(24),
+                child: Card(
+                  elevation: 8,
+                  shadowColor: Colors.purple.withOpacity(0.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white,
+                          Colors.purple[50] ?? Colors.white,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Form Header
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.purple[100],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.edit_note,
+                                color: Colors.purple[600],
+                                size: 20,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Point Of Sale',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 24),
+                        SaleForm(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Quick Actions Section
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      'FlexSell',
+                      'Quick Actions',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                         color: Colors.grey[800],
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Fill in the details below to record a new sale',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                    SizedBox(height: 16),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.42,
+                          child: _buildQuickActionCard(
+                            context,
+                            title: 'View Sales History',
+                            icon: Icons.history,
+                            color: Colors.blue,
+                            onTap: () => _showSalesHistory(context),
+                          ),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.42,
+                          child: _buildQuickActionCard(
+                            context,
+                            title: 'Customer List',
+                            icon: Icons.people_outline,
+                            color: Colors.green,
+                            onTap: () => _showCustomerList(context),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
-            
-            // Form Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(24),
-              child: Card(
-                elevation: 8,
-                shadowColor: Colors.purple.withOpacity(0.2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      colors: [Colors.white, Colors.purple[25] ?? Colors.white],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Form Header
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.purple[100],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.edit_note,
-                              color: Colors.purple[600],
-                              size: 20,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            'Point Of Sale',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      SizedBox(height: 24),
-                      
-                      // Enhanced Sale Form
-                      SaleForm(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            
-            // Quick Actions Section
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Quick Actions',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickActionCard(
-                          context,
-                          title: 'View Sales History',
-                          icon: Icons.history,
-                          color: Colors.blue,
-                          onTap: () => _showSalesHistory(context),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: _buildQuickActionCard(
-                          context,
-                          title: 'Customer List',
-                          icon: Icons.people_outline,
-                          color: Colors.green,
-                          onTap: () => _showCustomerList(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            
-            SizedBox(height: 32),
-          ],
+
+              SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
-      
-      // Floating Action Button for quick sale
+
+      // Floating Action Button
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showQuickSaleDialog(context),
         backgroundColor: Colors.purple[600],
@@ -324,12 +328,10 @@ class SaleScreen extends StatelessWidget {
         content: Text('Opening sales history...'),
         backgroundColor: Colors.blue[600],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
-    // Navigate to sales history screen
+    // TODO: Navigate to sales history screen
   }
 
   void _showCustomerList(BuildContext context) {
@@ -338,12 +340,10 @@ class SaleScreen extends StatelessWidget {
         content: Text('Opening customer list...'),
         backgroundColor: Colors.green[600],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
-    // Navigate to customer list screen
+    // TODO: Navigate to customer list screen
   }
 
   void _showQuickSaleDialog(BuildContext context) {
@@ -361,7 +361,8 @@ class SaleScreen extends StatelessWidget {
               Text('Quick Sale'),
             ],
           ),
-          content: Text('Quick sale feature for frequent transactions coming soon!'),
+          content: Text(
+              'Quick sale feature for frequent transactions coming soon!'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
