@@ -8,6 +8,7 @@ import 'providers/product_provider.dart';
 import 'providers/customer_provider.dart';
 import 'providers/sale_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/stats_provider.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
@@ -18,6 +19,9 @@ void main() async {
   databaseFactory = databaseFactoryFfi;
   final dbHelper = DatabaseHelper.instance;
 
+  // Optional: Reset database for development (remove in production)
+  // await dbHelper.resetDatabase();
+
   runApp(
     MultiProvider(
       providers: [
@@ -25,6 +29,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProductProvider(dbHelper)),
         ChangeNotifierProvider(create: (_) => CustomerProvider(dbHelper)),
         ChangeNotifierProvider(create: (_) => SaleProvider(dbHelper)),
+        ChangeNotifierProvider(create: (_) => StatsProvider(dbHelper)),
       ],
       child: const FlexSellApp(),
     ),

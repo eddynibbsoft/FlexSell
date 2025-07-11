@@ -23,8 +23,9 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Increment version for migration
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -43,8 +44,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         phone TEXT,
-        prepaidBalance REAL NOT NULL,
-        
+        prepaidBalance REAL NOT NULL DEFAULT 0.0
       )
     ''');
 
@@ -55,14 +55,71 @@ class DatabaseHelper {
         customerId INTEGER NOT NULL,
         amountPaid REAL NOT NULL,
         paymentType TEXT NOT NULL,
-        date TEXT NOT NULL
+        date TEXT NOT NULL,
+        FOREIGN KEY (productId) REFERENCES products (id),
+        FOREIGN KEY (customerId) REFERENCES customers (id)
       )
     ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Handle migration from version 1 to 2
+      try {
+        // Check if creditOwed column exists and remove it if it does
+        var result = await db.rawQuery("PRAGMA table_info(customers)");
+        bool hasCreditOwed = result.any((column) => column['name'] == 'creditOwed');
+        
+        if (hasCreditOwed) {
+          // Create new table with correct schema
+          await db.execute('''
+            CREATE TABLE customers_new (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              phone TEXT,
+              prepaidBalance REAL NOT NULL DEFAULT 0.0
+            )
+          ''');
+          
+          // Copy data from old table to new table
+          await db.execute('''
+            INSERT INTO customers_new (id, name, phone, prepaidBalance)
+            SELECT id, name, phone, COALESCE(prepaidBalance, 0.0)
+            FROM customers
+          ''');
+          
+          // Drop old table and rename new table
+          await db.execute('DROP TABLE customers');
+          await db.execute('ALTER TABLE customers_new RENAME TO customers');
+        }
+      } catch (e) {
+        print('Migration error: $e');
+        // If migration fails, recreate the table
+        await db.execute('DROP TABLE IF EXISTS customers');
+        await db.execute('''
+          CREATE TABLE customers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            phone TEXT,
+            prepaidBalance REAL NOT NULL DEFAULT 0.0
+          )
+        ''');
+      }
+    }
   }
 
   Future<void> close() async {
     final db = await instance.database;
     await db.close();
+  }
+
+  // Method to reset database (for development/testing)
+  Future<void> resetDatabase() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'flexsell.db');
+    
+    await deleteDatabase(path);
+    _database = null;
   }
 }
 
@@ -128,41 +185,61 @@ extension CustomerDB on DatabaseHelper {
 
   Future<List<Customer>> getAllCustomers() async {
     final db = await database;
-    final result = await db.query('customers');
-    return result.map((e) => Customer.fromMap(e)).toList();
+    try {
+      final result = await db.query('customers');
+      return result.map((e) => Customer.fromMap(e)).toList();
+    } catch (e) {
+      print('Error getting customers: $e');
+      return [];
+    }
   }
 
   Future<Customer?> getCustomerById(int id) async {
     final db = await database;
-    final result = await db.query(
-      'customers',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (result.isNotEmpty) {
-      return Customer.fromMap(result.first);
-    } else {
+    try {
+      final result = await db.query(
+        'customers',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (result.isNotEmpty) {
+        return Customer.fromMap(result.first);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting customer by id: $e');
       return null;
     }
   }
 
   Future<int> updateCustomer(Customer customer) async {
     final db = await database;
-    return await db.update(
-      'customers',
-      customer.toMap(),
-      where: 'id = ?',
-      whereArgs: [customer.id],
-    );
+    try {
+      return await db.update(
+        'customers',
+        customer.toMap(),
+        where: 'id = ?',
+        whereArgs: [customer.id],
+      );
+    } catch (e) {
+      print('Error updating customer: $e');
+      return 0;
+    }
   }
 
   Future<int> deleteCustomer(int id) async {
     final db = await database;
-    return await db.delete(
-      'customers',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      return await db.delete(
+        'customers',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print('Error deleting customer: $e');
+      return 0;
+    }
   }
 }
 
@@ -178,46 +255,65 @@ extension SaleDB on DatabaseHelper {
 
   Future<List<Sale>> getAllSales() async {
     final db = await database;
-    final result = await db.query('sales');
-    return result.map((e) => Sale.fromMap(e)).toList();
+    try {
+      final result = await db.query('sales', orderBy: 'date DESC');
+      return result.map((e) => Sale.fromMap(e)).toList();
+    } catch (e) {
+      print('Error getting sales: $e');
+      return [];
+    }
   }
 
   Future<Sale?> getSaleById(int id) async {
     final db = await database;
-    final result = await db.query(
-      'sales',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (result.isNotEmpty) {
-      return Sale.fromMap(result.first);
-    } else {
+    try {
+      final result = await db.query(
+        'sales',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (result.isNotEmpty) {
+        return Sale.fromMap(result.first);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting sale by id: $e');
       return null;
     }
   }
 
   Future<int> deleteSale(int id) async {
     final db = await database;
-    return await db.delete(
-      'sales',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      return await db.delete(
+        'sales',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print('Error deleting sale: $e');
+      return 0;
+    }
   }
 
   Future<List<Map<String, dynamic>>> getSalesWithDetails() async {
-  final db = await database;
-  final result = await db.rawQuery('''
-    SELECT 
-      s.*, 
-      c.name as customerName,
-      p.name as productName
-    FROM sales s
-    LEFT JOIN customers c ON s.customerId = c.id
-    LEFT JOIN products p ON s.productId = p.id
-    ORDER BY s.date DESC
-  ''');
-  return result;
+    final db = await database;
+    try {
+      final result = await db.rawQuery('''
+        SELECT 
+          s.*, 
+          c.name as customerName,
+          p.name as productName
+        FROM sales s
+        LEFT JOIN customers c ON s.customerId = c.id
+        LEFT JOIN products p ON s.productId = p.id
+        ORDER BY s.date DESC
+      ''');
+      return result;
+    } catch (e) {
+      print('Error getting sales with details: $e');
+      return [];
+    }
   }
-
 }

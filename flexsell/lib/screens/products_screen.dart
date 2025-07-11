@@ -206,7 +206,7 @@ class ProductsScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               SizedBox(height: 20),
-              ProductForm(product: product),
+              EnhancedProductForm(product: product),
             ],
           ),
         ),

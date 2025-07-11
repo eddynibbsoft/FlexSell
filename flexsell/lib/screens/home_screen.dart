@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/stats_provider.dart';
 import 'products_screen.dart';
 import 'customers_screen.dart';
 import 'sale_screen.dart';
@@ -49,6 +50,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     _fadeController.forward();
     _slideController.forward();
+    
+    // Load stats when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StatsProvider>().loadStats();
+    });
   }
 
   @override
@@ -240,8 +246,12 @@ class _HomeScreenState extends State<HomeScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Quick Stats Card
-                  _buildStatsCard(context),
+                  // Quick Stats Card with Real Data
+                  Consumer<StatsProvider>(
+                    builder: (context, statsProvider, child) {
+                      return _buildStatsCard(context, statsProvider);
+                    },
+                  ),
                   
                   SizedBox(height: 32),
                   
@@ -290,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildStatsCard(BuildContext context) {
+  Widget _buildStatsCard(BuildContext context, StatsProvider statsProvider) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -359,6 +369,15 @@ class _HomeScreenState extends State<HomeScreen>
                           ],
                         ),
                       ),
+                      // Refresh Button
+                      IconButton(
+                        onPressed: () => statsProvider.loadStats(),
+                        icon: Icon(
+                          Icons.refresh_rounded,
+                          color: colorScheme.primary,
+                        ),
+                        tooltip: 'Refresh Stats',
+                      ),
                     ],
                   ),
                   SizedBox(height: 20),
@@ -368,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: _buildStatItem(
                           context,
                           'Sales',
-                          '12',
+                          statsProvider.totalSales.toString(),
                           Icons.trending_up_rounded,
                           Colors.green,
                         ),
@@ -377,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: _buildStatItem(
                           context,
                           'Revenue',
-                          '\$1,234',
+                          '\$${statsProvider.totalRevenue.toStringAsFixed(2)}',
                           Icons.attach_money_rounded,
                           Colors.blue,
                         ),
@@ -386,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: _buildStatItem(
                           context,
                           'Customers',
-                          '45',
+                          statsProvider.totalCustomers.toString(),
                           Icons.people_rounded,
                           Colors.orange,
                         ),
@@ -528,42 +547,45 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Hero(
                   tag: title,
                   child: Container(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: gradient,
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
                           color: gradient[0].withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: Offset(0, 6),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Icon(
                       icon,
-                      size: 28,
+                      size: 24,
                       color: Colors.white,
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 12),
                 Text(
                   title,
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey[800],
                   ),
@@ -572,8 +594,10 @@ class _HomeScreenState extends State<HomeScreen>
                 Text(
                   subtitle,
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.grey[600],
                   ),
                 ),

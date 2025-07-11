@@ -496,7 +496,7 @@ class _CustomersScreenState extends State<CustomersScreen>
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               SizedBox(height: 20),
-              CustomerForm(customer: customer),
+              EnhancedCustomerForm(customer: customer),
             ],
           ),
         ),
