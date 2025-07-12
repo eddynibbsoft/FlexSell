@@ -4,7 +4,7 @@ import '../db/database_helper.dart';
 import '../models/customer.dart';
 
 class CustomerProvider extends ChangeNotifier {
-  final DatabaseHelper db;
+  final DatabaseHelper? db;
   List<Customer> _customers = [];
 
   CustomerProvider(this.db) {
@@ -15,25 +15,29 @@ class CustomerProvider extends ChangeNotifier {
 
   // READ
   Future<void> loadCustomers() async {
-    _customers = await db.getAllCustomers();
+    if (db == null) return;
+    _customers = await db!.getAllCustomers();
     notifyListeners();
   }
 
   // CREATE
   Future<void> addCustomer(Customer customer) async {
-    await db.insertCustomer(customer);
+    if (db == null) return;
+    await db!.insertCustomer(customer);
     await loadCustomers();
   }
 
   // UPDATE
   Future<void> updateCustomer(Customer customer) async {
-    await db.updateCustomer(customer);
+    if (db == null) return;
+    await db!.updateCustomer(customer);
     await loadCustomers();
   }
 
   // DELETE
   Future<void> deleteCustomer(int id) async {
-    await db.deleteCustomer(id);
+    if (db == null) return;
+    await db!.deleteCustomer(id);
     await loadCustomers();
   }
 

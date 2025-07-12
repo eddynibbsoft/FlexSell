@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../db/database_helper.dart';
 
 class StatsProvider extends ChangeNotifier {
-  final DatabaseHelper db;
+  final DatabaseHelper? db;
   
   int _totalSales = 0;
   double _totalRevenue = 0.0;
@@ -20,8 +20,9 @@ class StatsProvider extends ChangeNotifier {
   
   Future<void> loadStats() async {
     try {
+      if (db == null) return;
       // Get today's sales
-      final sales = await db.getAllSales();
+      final sales = await db!.getAllSales();
       final today = DateTime.now();
       final todaySales = sales.where((sale) {
         return sale.date.year == today.year &&
@@ -33,8 +34,8 @@ class StatsProvider extends ChangeNotifier {
       _totalRevenue = todaySales.fold(0.0, (sum, sale) => sum + sale.amountPaid);
       
       // Get total customers and products
-      final customers = await db.getAllCustomers();
-      final products = await db.getAllProducts();
+      final customers = await db!.getAllCustomers();
+      final products = await db!.getAllProducts();
       
       _totalCustomers = customers.length;
       _totalProducts = products.length;
@@ -47,9 +48,10 @@ class StatsProvider extends ChangeNotifier {
   
   Future<Map<String, dynamic>> getDetailedStats() async {
     try {
-      final sales = await db.getAllSales();
-      final customers = await db.getAllCustomers();
-      final products = await db.getAllProducts();
+      if (db == null) return {};
+      final sales = await db!.getAllSales();
+      final customers = await db!.getAllCustomers();
+      final products = await db!.getAllProducts();
       
       final today = DateTime.now();
       final thisWeek = today.subtract(Duration(days: 7));

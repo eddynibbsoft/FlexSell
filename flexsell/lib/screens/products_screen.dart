@@ -121,12 +121,15 @@ class ProductsScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 4),
-                      Row(
-                        children: [
-                          _buildPriceChip('Cash', product.cashPrice, Colors.green),
-                          SizedBox(width: 8),
-                          _buildPriceChip('Credit', product.creditPrice, Colors.orange),
-                        ],
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          children: [
+                            _buildPriceChip('Cash', product.cashPrice, Colors.green),
+                            SizedBox(width: 8),
+                            _buildPriceChip('Credit', product.creditPrice, Colors.orange),
+                          ],
+                        ),
                       ),
                     ],
                   ),

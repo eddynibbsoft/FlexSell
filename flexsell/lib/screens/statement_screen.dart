@@ -357,10 +357,13 @@ class _StatementScreenState extends State<StatementScreen>
                               labelText: 'Start Date',
                               prefixIcon: Icon(Icons.calendar_today_rounded),
                             ),
-                            child: Text(
-                              startDate == null
-                                  ? 'Select start date'
-                                  : startDate!.toLocal().toString().split(' ')[0],
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                startDate == null
+                                    ? 'Select start date'
+                                    : startDate!.toLocal().toString().split(' ')[0],
+                              ),
                             ),
                           ),
                         ),
@@ -374,10 +377,13 @@ class _StatementScreenState extends State<StatementScreen>
                               labelText: 'End Date',
                               prefixIcon: Icon(Icons.event_rounded),
                             ),
-                            child: Text(
-                              endDate == null
-                                  ? 'Select end date'
-                                  : endDate!.toLocal().toString().split(' ')[0],
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                endDate == null
+                                    ? 'Select end date'
+                                    : endDate!.toLocal().toString().split(' ')[0],
+                              ),
                             ),
                           ),
                         ),
@@ -572,6 +578,7 @@ class _StatementScreenState extends State<StatementScreen>
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -580,6 +587,7 @@ class _StatementScreenState extends State<StatementScreen>
                       fontSize: 14,
                       color: Colors.grey[600],
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -597,12 +605,15 @@ class _StatementScreenState extends State<StatementScreen>
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  (amount < 0 ? '-' : '+') + '\$${amount.abs().toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isCredit ? Colors.red : Colors.green,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    (amount < 0 ? '-' : '+') + '\${amount.abs().toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: isCredit ? Colors.red : Colors.green,
+                    ),
                   ),
                 ),
                 SizedBox(height: 4),

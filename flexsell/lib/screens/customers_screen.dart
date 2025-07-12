@@ -207,41 +207,43 @@ class _CustomersScreenState extends State<CustomersScreen>
   }
 
   Widget _buildStatChip(String label, int count, Color color) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
-          ),
-          SizedBox(width: 4),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              count.toString(),
+    return Flexible(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
               style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: color,
               ),
             ),
-          ),
-        ],
+            SizedBox(width: 4),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -366,9 +368,12 @@ class _CustomersScreenState extends State<CustomersScreen>
                       children: [
                         Icon(Icons.phone_rounded, size: 14, color: Colors.grey[600]),
                         SizedBox(width: 4),
-                        Text(
-                          customer.phone.isEmpty ? 'No phone' : customer.phone,
-                          style: theme.textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            customer.phone.isEmpty ? 'No phone' : customer.phone,
+                            style: theme.textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -384,7 +389,7 @@ class _CustomersScreenState extends State<CustomersScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Balance: \$${customer.prepaidBalance.toStringAsFixed(2)}',
+                        'Balance: \${customer.prepaidBalance.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

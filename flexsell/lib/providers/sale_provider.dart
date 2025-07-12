@@ -5,7 +5,7 @@ import '../models/customer.dart';
 import '../models/product.dart';
 
 class SaleProvider extends ChangeNotifier {
-  final DatabaseHelper db;
+  final DatabaseHelper? db;
   List<Sale> _sales = [];
 
   SaleProvider(this.db) {
@@ -15,7 +15,8 @@ class SaleProvider extends ChangeNotifier {
   List<Sale> get sales => List.unmodifiable(_sales);
 
   Future<void> loadSales() async {
-    _sales = await db.getAllSales();
+    if (db == null) return;
+    _sales = await db!.getAllSales();
     notifyListeners();
   }
 
@@ -23,8 +24,9 @@ class SaleProvider extends ChangeNotifier {
     required int productId,
     required int customerId,
   }) async {
-    final product = await db.getProductById(productId);
-    final customer = await db.getCustomerById(customerId);
+    if (db == null) return;
+    final product = await db!.getProductById(productId);
+    final customer = await db!.getCustomerById(customerId);
 
     if (product == null || customer == null) {
       return;
@@ -50,8 +52,8 @@ class SaleProvider extends ChangeNotifier {
       date: DateTime.now(),
     );
 
-    await db.insertSale(sale);
-    await db.updateCustomer(customer);
+    await db!.insertSale(sale);
+    await db!.updateCustomer(customer);
     await loadSales();
   }
 
@@ -59,16 +61,18 @@ class SaleProvider extends ChangeNotifier {
     required int customerId,
     required double amount,
   }) async {
-    final customer = await db.getCustomerById(customerId);
+    if (db == null) return;
+    final customer = await db!.getCustomerById(customerId);
     if (customer == null) return;
 
     customer.prepaidBalance += amount;
-    await db.updateCustomer(customer);
+    await db!.updateCustomer(customer);
     await loadSales();
   }
 
   Future<List<Map<String, dynamic>>> getSalesWithDetails() async {
-  return await db.getSalesWithDetails(); // uses the raw query method
+    if (db == null) return [];
+    return await db!.getSalesWithDetails(); // uses the raw query method
   }
 
   String getCustomerStatement(int customerId) {

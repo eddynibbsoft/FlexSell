@@ -83,59 +83,66 @@ class _HomeScreenState extends State<HomeScreen>
             backgroundColor: colorScheme.primary,
             actions: [
               // Quick Actions Menu
-              PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert_rounded, color: Colors.white),
-                onSelected: (value) => _handleMenuAction(context, value),
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'settings',
-                    child: Row(
-                      children: [
-                        Icon(Icons.settings_rounded),
-                        SizedBox(width: 12),
-                        Text('Settings'),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.more_vert_rounded, color: Colors.white),
+                      onSelected: (value) => _handleMenuAction(context, value),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'settings',
+                          child: Row(
+                            children: [
+                              Icon(Icons.settings_rounded),
+                              SizedBox(width: 12),
+                              Text('Settings'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'backup',
+                          child: Row(
+                            children: [
+                              Icon(Icons.backup_rounded),
+                              SizedBox(width: 12),
+                              Text('Backup Data'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'help',
+                          child: Row(
+                            children: [
+                              Icon(Icons.help_outline_rounded),
+                              SizedBox(width: 12),
+                              Text('Help & Support'),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'backup',
-                    child: Row(
-                      children: [
-                        Icon(Icons.backup_rounded),
-                        SizedBox(width: 12),
-                        Text('Backup Data'),
-                      ],
+                    // Theme Toggle
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, child) {
+                        return IconButton(
+                          icon: AnimatedSwitcher(
+                            duration: Duration(milliseconds: 300),
+                            child: Icon(
+                              themeProvider.isDarkMode
+                                  ? Icons.light_mode_rounded
+                                  : Icons.dark_mode_rounded,
+                              key: ValueKey(themeProvider.isDarkMode),
+                              color: Colors.white,
+                            ),
+                          ),
+                          onPressed: () => themeProvider.toggleTheme(),
+                        );
+                      },
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'help',
-                    child: Row(
-                      children: [
-                        Icon(Icons.help_outline_rounded),
-                        SizedBox(width: 12),
-                        Text('Help & Support'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              // Theme Toggle
-              Consumer<ThemeProvider>(
-                builder: (context, themeProvider, child) {
-                  return IconButton(
-                    icon: AnimatedSwitcher(
-                      duration: Duration(milliseconds: 300),
-                      child: Icon(
-                        themeProvider.isDarkMode
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        key: ValueKey(themeProvider.isDarkMode),
-                        color: Colors.white,
-                      ),
-                    ),
-                    onPressed: () => themeProvider.toggleTheme(),
-                  );
-                },
+                  ],
+                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -286,6 +293,10 @@ class _HomeScreenState extends State<HomeScreen>
                   SizedBox(height: 32),
 
                   // Recent Activity Section
+
+                  SizedBox(height: 32),
+
+                  // Recent Activity Section
                   _buildRecentActivityCard(context),
                   
                   SizedBox(height: 32),
@@ -382,33 +393,28 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   SizedBox(height: 20),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Expanded(
-                        child: _buildStatItem(
-                          context,
-                          'Sales',
-                          statsProvider.totalSales.toString(),
-                          Icons.trending_up_rounded,
-                          Colors.green,
-                        ),
+                      _buildStatItem(
+                        context,
+                        'Sales',
+                        statsProvider.totalSales.toString(),
+                        Icons.trending_up_rounded,
+                        Colors.green,
                       ),
-                      Expanded(
-                        child: _buildStatItem(
-                          context,
-                          'Revenue',
-                          '\$${statsProvider.totalRevenue.toStringAsFixed(2)}',
-                          Icons.attach_money_rounded,
-                          Colors.blue,
-                        ),
+                      _buildStatItem(
+                        context,
+                        'Revenue',
+                        '\$${statsProvider.totalRevenue.toStringAsFixed(2)}',
+                        Icons.attach_money_rounded,
+                        Colors.blue,
                       ),
-                      Expanded(
-                        child: _buildStatItem(
-                          context,
-                          'Customers',
-                          statsProvider.totalCustomers.toString(),
-                          Icons.people_rounded,
-                          Colors.orange,
-                        ),
+                      _buildStatItem(
+                        context,
+                        'Customers',
+                        statsProvider.totalCustomers.toString(),
+                        Icons.people_rounded,
+                        Colors.orange,
                       ),
                     ],
                   ),
@@ -422,30 +428,40 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildStatItem(BuildContext context, String label, String value, IconData icon, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+    return Flexible(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
+          SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
           ),
-        ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
     );
   }
 
@@ -548,60 +564,61 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           child: Padding(
             padding: EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Hero(
-                  tag: title,
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: gradient,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: gradient[0].withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Hero(
+                    tag: title,
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: gradient,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: gradient[0].withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 24,
+                        color: Colors.white,
+                      ),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 24,
-                      color: Colors.white,
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
+                    ),
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
