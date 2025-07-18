@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   sqflite: ^2.4.0
-  sqflite_common_ffi: ^2.3.0
   path: ^1.9.0
   path_provider: ^2.1.0
   provider: ^6.1.0
@@ -24,8 +23,31 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: "^0.13.1" # Make sure this line is present with the correct version
 
 flutter:
   uses-material-design: true
+  
   assets:
+    - assets/images/
+    - assets/icons/
     - assets/logo.png
+
+# CORRECT PLACEMENT: flutter_launcher_icons configuration is a top-level key
+flutter_launcher_icons:
+  android: "ic_launcher" # This should be "ic_launcher" as the default name for Android icons
+  ios: true
+  image_path: "assets/logo.png"
+  # min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"
+    background_color: "#245FBA"
+    theme_color: "#245FBA"
+  windows:
+    generate: true
+    image_path: "assets/images/logo.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/images/logo.png"

@@ -83,66 +83,59 @@ class _HomeScreenState extends State<HomeScreen>
             backgroundColor: colorScheme.primary,
             actions: [
               // Quick Actions Menu
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert_rounded, color: Colors.white),
-                      onSelected: (value) => _handleMenuAction(context, value),
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'settings',
-                          child: Row(
-                            children: [
-                              Icon(Icons.settings_rounded),
-                              SizedBox(width: 12),
-                              Text('Settings'),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'backup',
-                          child: Row(
-                            children: [
-                              Icon(Icons.backup_rounded),
-                              SizedBox(width: 12),
-                              Text('Backup Data'),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'help',
-                          child: Row(
-                            children: [
-                              Icon(Icons.help_outline_rounded),
-                              SizedBox(width: 12),
-                              Text('Help & Support'),
-                            ],
-                          ),
-                        ),
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert_rounded, color: Colors.white),
+                onSelected: (value) => _handleMenuAction(context, value),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'settings',
+                    child: Row(
+                      children: [
+                        Icon(Icons.settings_rounded),
+                        SizedBox(width: 12),
+                        Text('Settings'),
                       ],
                     ),
-                    // Theme Toggle
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, child) {
-                        return IconButton(
-                          icon: AnimatedSwitcher(
-                            duration: Duration(milliseconds: 300),
-                            child: Icon(
-                              themeProvider.isDarkMode
-                                  ? Icons.light_mode_rounded
-                                  : Icons.dark_mode_rounded,
-                              key: ValueKey(themeProvider.isDarkMode),
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: () => themeProvider.toggleTheme(),
-                        );
-                      },
+                  ),
+                  PopupMenuItem(
+                    value: 'backup',
+                    child: Row(
+                      children: [
+                        Icon(Icons.backup_rounded),
+                        SizedBox(width: 12),
+                        Text('Backup Data'),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  PopupMenuItem(
+                    value: 'help',
+                    child: Row(
+                      children: [
+                        Icon(Icons.help_outline_rounded),
+                        SizedBox(width: 12),
+                        Text('Help & Support'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              // Theme Toggle
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return IconButton(
+                    icon: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 300),
+                      child: Icon(
+                        themeProvider.isDarkMode
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        key: ValueKey(themeProvider.isDarkMode),
+                        color: Colors.white,
+                      ),
+                    ),
+                    onPressed: () => themeProvider.toggleTheme(),
+                  );
+                },
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -193,10 +186,31 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                   child: ClipOval(
                                     child: Image.asset(
-                                      'assets/logo.png',
+                                      isDark ? 'assets/images/logo_white.png' : 'assets/images/logo.png',
                                       width: 100,
                                       height: 100,
                                       fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        // Fallback to icon if image not found
+                                        return Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.white.withOpacity(0.9),
+                                                Colors.white.withOpacity(0.7),
+                                              ],
+                                            ),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.shopping_cart_rounded,
+                                            size: 50,
+                                            color: colorScheme.primary,
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),
@@ -289,10 +303,6 @@ class _HomeScreenState extends State<HomeScreen>
 
                   // Action Cards Grid with Staggered Animation
                   _buildAnimatedGrid(context),
-
-                  SizedBox(height: 32),
-
-                  // Recent Activity Section
 
                   SizedBox(height: 32),
 
@@ -393,28 +403,33 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   SizedBox(height: 20),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatItem(
-                        context,
-                        'Sales',
-                        statsProvider.totalSales.toString(),
-                        Icons.trending_up_rounded,
-                        Colors.green,
+                      Expanded(
+                        child: _buildStatItem(
+                          context,
+                          'Sales',
+                          statsProvider.totalSales.toString(),
+                          Icons.trending_up_rounded,
+                          Colors.green,
+                        ),
                       ),
-                      _buildStatItem(
-                        context,
-                        'Revenue',
-                        '\$${statsProvider.totalRevenue.toStringAsFixed(2)}',
-                        Icons.attach_money_rounded,
-                        Colors.blue,
+                      Expanded(
+                        child: _buildStatItem(
+                          context,
+                          'Revenue',
+                          '\$${statsProvider.totalRevenue.toStringAsFixed(2)}',
+                          Icons.attach_money_rounded,
+                          Colors.blue,
+                        ),
                       ),
-                      _buildStatItem(
-                        context,
-                        'Customers',
-                        statsProvider.totalCustomers.toString(),
-                        Icons.people_rounded,
-                        Colors.orange,
+                      Expanded(
+                        child: _buildStatItem(
+                          context,
+                          'Customers',
+                          statsProvider.totalCustomers.toString(),
+                          Icons.people_rounded,
+                          Colors.orange,
+                        ),
                       ),
                     ],
                   ),
@@ -428,40 +443,34 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildStatItem(BuildContext context, String label, String value, IconData icon, Color color) {
-    return Flexible(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 20),
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
           ),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
-      ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 
@@ -505,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen>
         crossAxisCount: size.width > 600 ? 4 : 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.1,
+        childAspectRatio: size.width > 600 ? 1.2 : 1.3,
       ),
       itemCount: actions.length,
       itemBuilder: (context, index) {
@@ -563,15 +572,16 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Hero(
+            padding: EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Hero(
                     tag: title,
                     child: Container(
-                      padding: EdgeInsets.all(12),
+                      padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: gradient,
@@ -589,36 +599,40 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       child: Icon(
                         icon,
-                        size: 24,
+                        size: 22,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
-                  Text(
+                ),
+                SizedBox(height: 8),
+                Flexible(
+                  child: Text(
                     title,
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: const Color.fromARGB(255, 19, 18, 18),
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
+                ),
+                SizedBox(height: 2),
+                Flexible(
+                  child: Text(
                     subtitle,
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 11,
-                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
+                      fontSize: 10,
+                      color: const Color.fromARGB(255, 194, 192, 192),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

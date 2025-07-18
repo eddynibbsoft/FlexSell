@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'db/database_helper.dart';
 import 'providers/product_provider.dart';
@@ -19,12 +22,24 @@ import 'screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (!kIsWeb) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    // Initialize FFI for desktop
+    // sqfliteFfiInit();
+    // databaseFactory = databaseFactoryFfi;
   }
 
-  runApp(const FlexSellApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider(DatabaseHelper.instance)),
+        ChangeNotifierProvider(create: (_) => CustomerProvider(DatabaseHelper.instance)),
+        ChangeNotifierProvider(create: (_) => SaleProvider(DatabaseHelper.instance)),
+        ChangeNotifierProvider(create: (_) => StatsProvider(DatabaseHelper.instance)),
+      ],
+      child: const FlexSellApp(),
+    ),
+  );
 }
 
 class FlexSellApp extends StatelessWidget {
@@ -32,50 +47,17 @@ class FlexSellApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        if (!kIsWeb) ...[
-          Provider(create: (_) => DatabaseHelper.instance),
-          ChangeNotifierProvider<ProductProvider>(
-            create: (context) => ProductProvider(context.read<DatabaseHelper>()),
-          ),
-          ChangeNotifierProvider<CustomerProvider>(
-            create: (context) => CustomerProvider(context.read<DatabaseHelper>()),
-          ),
-          ChangeNotifierProvider<SaleProvider>(
-            create: (context) => SaleProvider(context.read<DatabaseHelper>()),
-          ),
-          ChangeNotifierProvider<StatsProvider>(
-            create: (context) => StatsProvider(context.read<DatabaseHelper>()),
-          ),
-        ] else ...[
-          ChangeNotifierProvider<StatsProvider>(
-            create: (_) => DummyStatsProvider(),
-          ),
-          ChangeNotifierProvider<ProductProvider>(
-            create: (_) => DummyProductProvider(),
-          ),
-          ChangeNotifierProvider<CustomerProvider>(
-            create: (_) => DummyCustomerProvider(),
-          ),
-          ChangeNotifierProvider<SaleProvider>(
-            create: (_) => DummySaleProvider(),
-          ),
-        ],
-      ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
-          return MaterialApp(
-            title: 'FlexSell',
-            debugShowCheckedModeBanner: false,
-            themeMode: themeProvider.themeMode,
-            theme: _buildLightTheme(),
-            darkTheme: _buildDarkTheme(),
-            home: HomeScreen(),
-          );
-        },
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'FlexSell',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeProvider.themeMode,
+          theme: _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
+          home: HomeScreen(),
+        );
+      },
     );
   }
 

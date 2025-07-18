@@ -177,12 +177,15 @@ class _StatementScreenState extends State<StatementScreen>
             headers: ['Date', 'Customer', 'Product', 'Type', 'Amount'],
             data: sales.map((s) {
               final date = DateTime.tryParse(s['date'] ?? '')?.toLocal().toString().split('.')[0] ?? '';
+              final amount = s['amountPaid'] as double;
+              final amountString =
+                  '${amount < 0 ? '-' : ''}\$${amount.abs().toStringAsFixed(2)}';
               return [
                 date,
                 s['customerName'] ?? 'Deleted Customer',
                 s['productName'] ?? 'Deleted Product',
                 s['paymentType'],
-                '\$${s['amountPaid'].toStringAsFixed(2)}',
+                amountString,
               ];
             }).toList(),
             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
@@ -608,7 +611,7 @@ class _StatementScreenState extends State<StatementScreen>
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    (amount < 0 ? '-' : '+') + '\${amount.abs().toStringAsFixed(2)}',
+                    '${amount < 0 ? '-' : '+'}\$${amount.abs().toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -690,7 +693,7 @@ class _StatementScreenState extends State<StatementScreen>
                     ),
                     subtitle: Text('${entry.value.length} transactions'),
                     trailing: Text(
-                      '\$${totalAmount.abs().toStringAsFixed(2)}',
+                      '${totalAmount < 0 ? '-' : ''}\$${totalAmount.abs().toStringAsFixed(2)}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: totalAmount < 0 ? Colors.red : Colors.green,
@@ -705,7 +708,7 @@ class _StatementScreenState extends State<StatementScreen>
                         title: Text(transaction['customerName'] ?? 'Deleted Customer'),
                         subtitle: Text(date.toLocal().toString().split('.')[0]),
                         trailing: Text(
-                          '\$${amount.abs().toStringAsFixed(2)}',
+                          '${amount < 0 ? '-' : ''}\$${amount.abs().toStringAsFixed(2)}',
                           style: TextStyle(
                             color: amount < 0 ? Colors.red : Colors.green,
                             fontWeight: FontWeight.w500,

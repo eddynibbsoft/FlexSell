@@ -89,369 +89,363 @@ class _EnhancedProductFormState extends State<EnhancedProductForm>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isEdit = widget.product != null;
+ Widget build(BuildContext context) {
+   final theme = Theme.of(context);
+   final isEdit = widget.product != null;
 
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Container(
-          width: double.infinity,
-          constraints: BoxConstraints(
-            maxWidth: 500,
-            maxHeight: MediaQuery.of(context).size.height * 0.85,
-          ),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Container(
-                    padding: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.green[600]!,
-                          Colors.green[500]!,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            isEdit ? Icons.edit_rounded : Icons.add_box_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isEdit ? 'Edit Product' : 'Add New Product',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                isEdit ? 'Update product information' : 'Enter product details',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.9),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+   return FadeTransition(
+     opacity: _fadeAnimation,
+     child: SlideTransition(
+       position: _slideAnimation,
+       // Wrap everything in a SingleChildScrollView to ensure the form
+       // is always scrollable if content exceeds the screen height.
+       child: SingleChildScrollView(
+         child: Column(
+           // mainAxisSize.min ensures the column only takes up as much
+           // vertical space as its children need.
+           mainAxisSize: MainAxisSize.min,
+           children: [
+             // Header
+             Container(
+               padding: EdgeInsets.all(24),
+               decoration: BoxDecoration(
+                 gradient: LinearGradient(
+                   colors: [
+                     Colors.green[600]!,
+                     Colors.green[500]!,
+                   ],
+                   begin: Alignment.topLeft,
+                   end: Alignment.bottomRight,
+                 ),
+                 borderRadius: BorderRadius.vertical(
+                   top: Radius.circular(20),
+                 ),
+               ),
+               child: Row(
+                 children: [
+                   Container(
+                     padding: EdgeInsets.all(12),
+                     decoration: BoxDecoration(
+                       color: Colors.white.withOpacity(0.2),
+                       borderRadius: BorderRadius.circular(12),
+                     ),
+                     child: Icon(
+                       isEdit ? Icons.edit_rounded : Icons.add_box_rounded,
+                       color: Colors.white,
+                       size: 24,
+                     ),
+                   ),
+                   SizedBox(width: 16),
+                   Expanded(
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Text(
+                           isEdit ? 'Edit Product' : 'Add New Product',
+                           style: TextStyle(
+                             fontSize: 20,
+                             fontWeight: FontWeight.bold,
+                             color: Colors.white,
+                           ),
+                         ),
+                         Text(
+                           isEdit ? 'Update product information' : 'Enter product details',
+                           style: TextStyle(
+                             fontSize: 14,
+                             color: Colors.white.withOpacity(0.9),
+                           ),
+                         ),
+                       ],
+                     ),
+                   ),
+                 ],
+               ),
+             ),
+             // Form Fields
+             Form(
+               key: _formKey,
+               child: Padding(
+                 padding: EdgeInsets.all(24),
+                 child: Column(
+                   mainAxisSize: MainAxisSize.min,
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     // Product Name
+                     _buildAnimatedField(
+                       delay: 200,
+                       child: TextFormField(
+                         controller: _nameController,
+                         decoration: InputDecoration(
+                           labelText: 'Product Name *',
+                           prefixIcon: Icon(Icons.inventory_2_rounded),
+                           hintText: 'Enter product name',
+                         ),
+                         validator: (value) {
+                           if (value == null || value.trim().isEmpty) {
+                             return 'Please enter product name';
+                           }
+                           if (value.trim().length < 2) {
+                             return 'Name must be at least 2 characters';
+                           }
+                           return null;
+                         },
+                         textCapitalization: TextCapitalization.words,
+                       ),
+                     ),
 
-                  // Form Content
-                  Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Product Name
-                        _buildAnimatedField(
-                          delay: 200,
-                          child: TextFormField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Product Name *',
-                              prefixIcon: Icon(Icons.inventory_2_rounded),
-                              hintText: 'Enter product name',
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please enter product name';
-                              }
-                              if (value.trim().length < 2) {
-                                return 'Name must be at least 2 characters';
-                              }
-                              return null;
-                            },
-                            textCapitalization: TextCapitalization.words,
-                          ),
-                        ),
+                     SizedBox(height: 20),
 
-                        SizedBox(height: 20),
+                     // Cash Price
+                     _buildAnimatedField(
+                       delay: 300,
+                       child: TextFormField(
+                         controller: _cashPriceController,
+                         decoration: InputDecoration(
+                           labelText: 'Cash Price *',
+                           prefixIcon: Icon(Icons.attach_money_rounded),
+                           hintText: '0.00',
+                         ),
+                         keyboardType: TextInputType.numberWithOptions(decimal: true),
+                         inputFormatters: [
+                           FilteringTextInputFormatter.allow(
+                               RegExp(r'^\d+\.?\d{0,2}')),
+                         ],
+                         validator: (value) {
+                           if (value == null || value.isEmpty) {
+                             return 'Required';
+                           }
+                           final price = double.tryParse(value);
+                           if (price == null || price <= 0) {
+                             return 'Invalid price';
+                           }
+                           return null;
+                         },
+                       ),
+                     ),
 
-                        // Price Fields Row
-                        _buildAnimatedField(
-                          delay: 300,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _cashPriceController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Cash Price *',
-                                    prefixIcon: Icon(Icons.attach_money_rounded),
-                                    hintText: '0.00',
-                                  ),
-                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d+\.?\d{0,2}')),
-                                  ],
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Required';
-                                    }
-                                    final price = double.tryParse(value);
-                                    if (price == null || price <= 0) {
-                                      return 'Invalid price';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _creditPriceController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Credit Price *',
-                                    prefixIcon: Icon(Icons.credit_card_rounded),
-                                    hintText: '0.00',
-                                  ),
-                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d+\.?\d{0,2}')),
-                                  ],
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Required';
-                                    }
-                                    final price = double.tryParse(value);
-                                    if (price == null || price <= 0) {
-                                      return 'Invalid price';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                     SizedBox(height: 20),
 
-                        SizedBox(height: 20),
+                     // Credit Price
+                     _buildAnimatedField(
+                       delay: 400,
+                       child: TextFormField(
+                         controller: _creditPriceController,
+                         decoration: InputDecoration(
+                           labelText: 'Credit Price *',
+                           prefixIcon: Icon(Icons.credit_card_rounded),
+                           hintText: '0.00',
+                         ),
+                         keyboardType: TextInputType.numberWithOptions(decimal: true),
+                         inputFormatters: [
+                           FilteringTextInputFormatter.allow(
+                               RegExp(r'^\d+\.?\d{0,2}')),
+                         ],
+                         validator: (value) {
+                           if (value == null || value.isEmpty) {
+                             return 'Required';
+                           }
+                           final price = double.tryParse(value);
+                           if (price == null || price <= 0) {
+                             return 'Invalid price';
+                           }
+                           return null;
+                         },
+                       ),
+                     ),
 
-                        // Price Difference Indicator
-                        _buildAnimatedField(
-                          delay: 400,
-                          child: _buildPriceDifferenceIndicator(),
-                        ),
+                     SizedBox(height: 20),
 
-                        SizedBox(height: 20),
+                     // Price Difference Indicator
+                     _buildAnimatedField(
+                       delay: 400,
+                       child: _buildPriceDifferenceIndicator(),
+                     ),
 
-                        // Advanced Fields Toggle
-                        _buildAnimatedField(
-                          delay: 500,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _showAdvancedFields = !_showAdvancedFields;
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.green.withOpacity(0.3),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.tune_rounded,
-                                    color: Colors.green[600],
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'Advanced Options',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.green[600],
-                                      ),
-                                    ),
-                                  ),
-                                  AnimatedRotation(
-                                    turns: _showAdvancedFields ? 0.5 : 0,
-                                    duration: Duration(milliseconds: 300),
-                                    child: Icon(
-                                      Icons.expand_more_rounded,
-                                      color: Colors.green[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                     SizedBox(height: 20),
 
-                        // Advanced Fields
-                        AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: _showAdvancedFields ? null : 0,
-                          child: _showAdvancedFields
-                              ? Column(
-                                  children: [
-                                    SizedBox(height: 20),
-                                    
-                                    // Category Dropdown
-                                    _buildAnimatedField(
-                                      delay: 600,
-                                      child: DropdownButtonFormField<String>(
-                                        value: _selectedCategory,
-                                        decoration: InputDecoration(
-                                          labelText: 'Category',
-                                          prefixIcon: Icon(Icons.category_rounded),
-                                        ),
-                                        items: _categories.map((category) {
-                                          return DropdownMenuItem(
-                                            value: category,
-                                            child: Text(category),
-                                          );
-                                        }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedCategory = value!;
-                                          });
-                                        },
-                                      ),
-                                    ),
+                     // Advanced Fields Toggle
+                     _buildAnimatedField(
+                       delay: 500,
+                       child: InkWell(
+                         onTap: () {
+                           setState(() {
+                             _showAdvancedFields = !_showAdvancedFields;
+                           });
+                         },
+                         child: Container(
+                           padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                           decoration: BoxDecoration(
+                             color: Colors.green.withOpacity(0.1),
+                             borderRadius: BorderRadius.circular(12),
+                             border: Border.all(
+                               color: Colors.green.withOpacity(0.3),
+                             ),
+                           ),
+                           child: Row(
+                             children: [
+                               Icon(
+                                 Icons.tune_rounded,
+                                 color: Colors.green[600],
+                                 size: 20,
+                               ),
+                               SizedBox(width: 12),
+                               Expanded(
+                                 child: Text(
+                                   'Advanced Options',
+                                   style: TextStyle(
+                                     fontWeight: FontWeight.w500,
+                                     color: Colors.green[600],
+                                   ),
+                                 ),
+                               ),
+                               AnimatedRotation(
+                                 turns: _showAdvancedFields ? 0.5 : 0,
+                                 duration: Duration(milliseconds: 300),
+                                 child: Icon(
+                                   Icons.expand_more_rounded,
+                                   color: Colors.green[600],
+                                 ),
+                               ),
+                             ],
+                           ),
+                         ),
+                       ),
+                     ),
 
-                                    SizedBox(height: 20),
+                     // Advanced Fields
+                     AnimatedContainer(
+                       duration: Duration(milliseconds: 300),
+                       height: _showAdvancedFields ? null : 0,
+                       child: _showAdvancedFields
+                           ? Column(
+                               children: [
+                                 SizedBox(height: 20),
+                                 
+                                 // Category Dropdown
+                                 _buildAnimatedField(
+                                   delay: 600,
+                                   child: DropdownButtonFormField<String>(
+                                     value: _selectedCategory,
+                                     decoration: InputDecoration(
+                                       labelText: 'Category',
+                                       prefixIcon: Icon(Icons.category_rounded),
+                                     ),
+                                     items: _categories.map((category) {
+                                       return DropdownMenuItem(
+                                         value: category,
+                                         child: Text(category),
+                                       );
+                                     }).toList(),
+                                     onChanged: (value) {
+                                       setState(() {
+                                         _selectedCategory = value!;
+                                       });
+                                     },
+                                   ),
+                                 ),
 
-                                    // SKU Field
-                                    _buildAnimatedField(
-                                      delay: 700,
-                                      child: TextFormField(
-                                        controller: _skuController,
-                                        decoration: InputDecoration(
-                                          labelText: 'SKU/Barcode',
-                                          prefixIcon: Icon(Icons.qr_code_rounded),
-                                          hintText: 'Enter product SKU',
-                                        ),
-                                        textCapitalization: TextCapitalization.characters,
-                                      ),
-                                    ),
+                                 SizedBox(height: 20),
 
-                                    SizedBox(height: 20),
+                                 // SKU Field
+                                 _buildAnimatedField(
+                                   delay: 700,
+                                   child: TextFormField(
+                                     controller: _skuController,
+                                     decoration: InputDecoration(
+                                       labelText: 'SKU/Barcode',
+                                       prefixIcon: Icon(Icons.qr_code_rounded),
+                                       hintText: 'Enter product SKU',
+                                     ),
+                                     textCapitalization: TextCapitalization.characters,
+                                   ),
+                                 ),
 
-                                    // Description Field
-                                    _buildAnimatedField(
-                                      delay: 800,
-                                      child: TextFormField(
-                                        controller: _descriptionController,
-                                        decoration: InputDecoration(
-                                          labelText: 'Description',
-                                          prefixIcon: Icon(Icons.description_rounded),
-                                          hintText: 'Enter product description',
-                                        ),
-                                        maxLines: 3,
-                                        textCapitalization: TextCapitalization.sentences,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : SizedBox.shrink(),
-                        ),
+                                 SizedBox(height: 20),
 
-                        SizedBox(height: 32),
-
-                        // Action Buttons
-                        _buildAnimatedField(
-                          delay: 900,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: _isLoading ? null : () => Navigator.pop(context),
-                                  icon: Icon(Icons.close_rounded),
-                                  label: Text('Cancel'),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                flex: 2,
-                                child: ElevatedButton.icon(
-                                  onPressed: _isLoading ? null : _submitForm,
-                                  icon: _isLoading
-                                      ? SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                      : Icon(isEdit ? Icons.update_rounded : Icons.add_rounded),
-                                  label: Text(_isLoading
-                                      ? 'Saving...'
-                                      : isEdit
-                                          ? 'Update Product'
-                                          : 'Add Product'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green[600],
-                                    padding: EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+                                 // Description Field
+                                 _buildAnimatedField(
+                                   delay: 800,
+                                   child: TextFormField(
+                                     controller: _descriptionController,
+                                     decoration: InputDecoration(
+                                       labelText: 'Description',
+                                       prefixIcon: Icon(Icons.description_rounded),
+                                       hintText: 'Enter product description',
+                                     ),
+                                     maxLines: 3,
+                                     textCapitalization: TextCapitalization.sentences,
+                                   ),
+                                 ),
+                               ],
+                             )
+                           : SizedBox.shrink(),
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+             SizedBox(height: 16), // Reduced bottom spacing
+             // Action Buttons
+             _buildAnimatedField(
+               delay: 900,
+               child: Padding(
+                 padding: EdgeInsets.fromLTRB(24, 0, 24, 24), // Add bottom padding here
+                 child: Row(
+                   children: [
+                     Expanded(
+                       child: OutlinedButton.icon(
+                         onPressed: _isLoading ? null : () => Navigator.pop(context),
+                         icon: Icon(Icons.close_rounded),
+                         label: Text('Cancel'),
+                         style: OutlinedButton.styleFrom(
+                           padding: EdgeInsets.symmetric(vertical: 16),
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(12),
+                           ),
+                         ),
+                       ),
+                     ),
+                     SizedBox(width: 16),
+                     Expanded(
+                       flex: 2,
+                       child: ElevatedButton.icon(
+                         onPressed: _isLoading ? null : _submitForm,
+                         icon: _isLoading
+                             ? SizedBox(
+                                 width: 20,
+                                 height: 20,
+                                 child: CircularProgressIndicator(
+                                   strokeWidth: 2,
+                                   valueColor: AlwaysStoppedAnimation<Color>(
+                                     Colors.white,
+                                   ),
+                                 ),
+                               )
+                             : Icon(isEdit ? Icons.update_rounded : Icons.add_rounded),
+                         label: Text(_isLoading
+                             ? 'Saving...'
+                             : isEdit
+                                 ? 'Update Product'
+                                 : 'Add Product'),
+                         style: ElevatedButton.styleFrom(
+                           backgroundColor: Colors.green[600],
+                           padding: EdgeInsets.symmetric(vertical: 16),
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(12),
+                           ),
+                         ),
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+           ],
+         ),
+       ),
+     ),
+   );
+ }
 
   Widget _buildAnimatedField({required int delay, required Widget child}) {
     return TweenAnimationBuilder<double>(

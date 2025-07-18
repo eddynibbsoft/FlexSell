@@ -389,7 +389,7 @@ class _CustomersScreenState extends State<CustomersScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Balance: \${customer.prepaidBalance.toStringAsFixed(2)}',
+                        'Balance: \$${customer.prepaidBalance.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

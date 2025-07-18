@@ -84,7 +84,7 @@ class DatabaseHelper {
           // Copy data from old table to new table
           await db.execute('''
             INSERT INTO customers_new (id, name, phone, prepaidBalance)
-            SELECT id, name, phone, COALESCE(prepaidBalance, 0.0)
+            SELECT id, name, phone, 0.0
             FROM customers
           ''');
           
